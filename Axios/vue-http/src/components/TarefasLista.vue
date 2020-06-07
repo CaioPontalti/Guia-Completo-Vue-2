@@ -6,7 +6,8 @@
                 <h1 class="font-weight-light">Lista de Tarefas</h1>
             </div>
             <div class="col-sm-2">
-                <button class="btn btn-primary float-right" @click="exibirForm = !exibirForm">
+                <button class="btn btn-primary float-right" 
+                    @click="exibirFormularioCriarTarefa">
                     <i class="fa fa-plus mr-2"></i>
                     <span>Criar</span>
                 </button>
@@ -14,16 +15,19 @@
         </div>
         
 
-        <ul class="list-group" v-if="tarefas.length > 0">
+        <ul class="list-group" v-if="tarefasOrdenadas.length > 0">
             <TarefasListaIten
-                v-for="tarefa in tarefas"
+                v-for="tarefa in tarefasOrdenadas"
                 :key="tarefa.id"
                 :tarefa="tarefa" 
                 @editar="selecionarTarefaEditar"
-                @deletar="deletarTarefa"/>
+                @deletar="deletarTarefa"
+                @editarStatus="editarTarefa"/>
         </ul>
 
-        <p v-else>Nenhuma tarefa criada.</p>
+        <p v-else-if="!mensagemErro">Nenhuma tarefa criada.</p>
+
+        <p v-else class="alert alert-danger">{{ mensagemErro }}</p>
 
         <TarefaSalvar 
             v-if="exibirForm"
@@ -37,9 +41,8 @@
 
 <script>
 
-import axios from 'axios'
+import axios from '../axios'
 
-import config from './../config/config'
 import TarefaSalvar from './TarefaSalvar.vue'
 import TarefasListaIten from './TarefasListaIten.vue'
 
@@ -53,34 +56,60 @@ export default {
         return {
             tarefas: [],
             exibirForm:false,
-            tarefaSelecionada: undefined
+            tarefaSelecionada: undefined,
+            mensagemErro:undefined
         }
     },
     created(){
-        axios.get(`${config.apiURL}/tarefas`).then((response) =>{
+        axios.get(`/tarefas`).then((response) =>{
             this.tarefas = response.data;
+        }, error=>{
+            return Promise.reject(error)
+        }).catch(error =>{
+            if (error.response) {
+                this.mensagemErro = `Servidor retornou um erro: ${error.message} ${error.response.statusText}`
+            } else if(error.request){
+                this.mensagemErro = `Erro ao tentar se comunicar com o servidor. Erro ${error.message}`
+            } else{
+                this.mensagemErro = `Erro ao tentar fazer a requisição ao servidor. Erro: ${error.message}`
+            }
         })
+    },
+    computed:{
+        tarefasOrdenadas(){
+            return this.tarefas.slice().sort((tarefa1, tarefa2) =>{
+                return tarefa1.concluido - tarefa2.concluido
+            })
+        }
     },
     methods:{
         criarTarefa(tarefa){
-            axios.post(`${config.apiURL}/tarefas`, tarefa).then(( response) =>{
+            axios.post(`/tarefas`, tarefa).then(( response) =>{
                 this.tarefas.push(response.data)
                 this.resetar()
             })
         },
         editarTarefa(tarefa){
-            axios.put(`${config.apiURL}/tarefas/${tarefa.id}`, tarefa).then( response =>{
+            console.log(tarefa);
+            axios.put(`/tarefas/${tarefa.id}`, tarefa).then( response =>{
                 const indice = this.tarefas.findIndex(t => t.id === tarefa.id)
                 this.tarefas.splice(indice, 1, response.data)
                 this.resetar()
             })
         },
         deletarTarefa(tarefa){
-            axios.delete(`${config.apiURL}/tarefas/${tarefa.id}`).then(response =>{
+            axios.delete(`/tarefas/${tarefa.id}`).then(response =>{
                 const indice = this.tarefas.findIndex(t => t.id === tarefa.id)
                 this.tarefas.splice(indice, 1)
                 this.resetar()
             })
+        },
+        exibirFormularioCriarTarefa(e){
+            if (this.tarefaSelecionada) {
+                this.tarefaSelecionada = undefined
+                return
+            }
+            this.exibirForm = !this.exibirForm
         },
         selecionarTarefaEditar(tarefa){
             this.tarefaSelecionada = tarefa
