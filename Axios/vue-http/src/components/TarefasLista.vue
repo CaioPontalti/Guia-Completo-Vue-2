@@ -97,12 +97,25 @@ export default {
                 this.resetar()
             })
         },
-        deletarTarefa(tarefa){
-            axios.delete(`/tarefas/${tarefa.id}`).then(response =>{
+        async deletarTarefa(tarefa){
+            // axios.delete(`/tarefas/${tarefa.id}`).then(response =>{
+            //     const indice = this.tarefas.findIndex(t => t.id === tarefa.id)
+            //     this.tarefas.splice(indice, 1)
+            //     this.resetar()
+            // })
+
+            try {
+                
+                const response = await axios.delete(`/tarefas/${tarefa.id}`)
                 const indice = this.tarefas.findIndex(t => t.id === tarefa.id)
                 this.tarefas.splice(indice, 1)
-                this.resetar()
-            })
+
+            } catch (error) {
+                console.log(`Ocorreu um erro ao deletar uma tarefa. Erro: ${error}`)
+            } finally{
+                console.log('Sempre passa pelo finally')
+            }
+
         },
         exibirFormularioCriarTarefa(e){
             if (this.tarefaSelecionada) {
