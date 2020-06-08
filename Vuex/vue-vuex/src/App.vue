@@ -9,8 +9,19 @@
     </div>
 
     <div class="container">
-
+      <contador></contador>
     </div>
 
   </div>
 </template>
+
+<script>
+
+import contador from '@/components/Contador.vue'
+
+export default {
+  components:{
+    contador
+  }
+}
+</script>
