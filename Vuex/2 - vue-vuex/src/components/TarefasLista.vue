@@ -70,8 +70,8 @@ export default {
         })
     },
     computed:{
-        ...mapState(['tarefas']),
-        ...mapGetters(['tarefasConcluidas', 'tarefasAFazer', 'totalTarefasConcluidas']),
+        ...mapState('tarefas', ['tarefas']),
+        ...mapGetters('tarefas', ['tarefasConcluidas', 'tarefasAFazer', 'totalTarefasConcluidas']),
         tarefasConcluidas(){
             return this.$store.getters.tarefasConcluidas
         }
@@ -83,7 +83,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['listarTarefas']),
+        ...mapActions('tarefas', ['listarTarefas']),
         exibirFormularioCriarTarefa(event) {
             if (this.tarefaSelecionada) {
                 this.tarefaSelecionada = undefined

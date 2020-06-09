@@ -1,11 +1,17 @@
+/* eslint-disable */
 import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const contadorModule ={
+    namespaced: true,
+    contador: 0
+}
+
+const tarefasModule ={
+    namespaced: true,
     state: {
-        contador: 0,
         tarefas: []
     },
     getters:{
@@ -31,4 +37,13 @@ export default new Vuex.Store({
             }, 2000);            
         }
     }
+}
+
+const store = new Vuex.Store({
+    modules:{
+        contador: contadorModule,
+        tarefas: tarefasModule
+    }
 })
+
+export default store
