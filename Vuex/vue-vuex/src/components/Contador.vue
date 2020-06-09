@@ -14,7 +14,9 @@ import {mapState} from 'vuex'
 
 export default {
     /* eslint-disable */ 
-    computed:mapState(['contador']),
+    computed:{
+        ...mapState(['contador'])
+    },
     methods:{
         decrementar(){
             this.$store.state.contador --
